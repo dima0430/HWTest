@@ -1,0 +1,21 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Georgia-BoldItalic.ttf",
+      "sha1": "8309087a83f8880a5a498f5df8521ee18541894a"
+    },
+    {
+      "path": "src/assets/fonts/NunitoSans-Bold.ttf",
+      "sha1": "eab9f3759631038e4e56993afdab3e66074a745c"
+    },
+    {
+      "path": "src/assets/fonts/NunitoSans-ExtraBold.ttf",
+      "sha1": "ce87cb59ae5aadfa8d99b5957b98d4bd8e85c996"
+    },
+    {
+      "path": "src/assets/fonts/NunitoSans-SemiBold.ttf",
+      "sha1": "b83505912d818c983a5afdaf3555bd6a6b2595a1"
+    }
+  ]
+}

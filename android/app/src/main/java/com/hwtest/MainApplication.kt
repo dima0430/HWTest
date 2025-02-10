@@ -1,4 +1,4 @@
-package com.hwtest
+package com.books.app
 
 import android.app.Application
 import com.facebook.react.PackageList
