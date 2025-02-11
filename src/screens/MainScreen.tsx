@@ -1,11 +1,4 @@
-import {
-  BackHandler,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {BackHandler, ScrollView, StyleSheet, Text, View} from 'react-native';
 import React, {useCallback, useRef} from 'react';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import _ from 'lodash';
@@ -13,13 +6,16 @@ import Carousel, {
   ICarouselInstance,
   Pagination,
 } from 'react-native-reanimated-carousel';
+import {
+  GestureHandlerRootView,
+  TouchableOpacity,
+} from 'react-native-gesture-handler';
 import {useSharedValue} from 'react-native-reanimated';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {Colors, Fonts, scaledSize} from '../theme';
 import BooksSection from '../components/BooksSection';
 import ImageFromUri from '../components/ImageFromUri';
 import {useConfig} from '../context';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const MainScreen: React.FC = () => {
   const {books_grouped_by_genre, top_banner_slides} = useConfig();
@@ -87,7 +83,7 @@ const MainScreen: React.FC = () => {
               defaultScrollOffsetValue={scrollOffsetValue}
               style={styles.carousel}
               renderItem={({item}) => (
-                <TouchableOpacity onPress={goToDetails(item.id)}>
+                <TouchableOpacity onPress={goToDetails(item.book_id)}>
                   <ImageFromUri
                     uri={item.cover}
                     imageStyle={styles.image}

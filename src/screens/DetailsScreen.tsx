@@ -1,4 +1,5 @@
 import {
+  ImageBackground,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,6 +18,7 @@ import {useConfig} from '../context';
 import {Colors, Fonts, scaledSize, screenWidth, withHexOpacity} from '../theme';
 import ArrowIcon from '../assets/illustrations/arrow.svg';
 import {parallaxLayout} from '../utils';
+import SplashScreenBg from '../assets/illustrations/details-screen-bg.png';
 
 type DetailsScreenRouteProp = RouteProp<
   {
@@ -49,6 +51,7 @@ const DetailsScreen: React.FC = () => {
   return (
     <GestureHandlerRootView>
       <SafeAreaView edges={['left', 'right']} style={styles.container}>
+        <ImageBackground source={SplashScreenBg} style={styles.bgImage} />
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={styles.scroll}
@@ -117,6 +120,7 @@ const DetailsScreen: React.FC = () => {
               title="You will also like"
               books={parsed_you_will_like_section}
               titleStyle={styles.likedTitle}
+              isAvalibleToPress={false}
             />
             <TouchableOpacity style={styles.button}>
               <Text style={styles.buttonText}>Read Now</Text>
@@ -134,7 +138,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexGrow: 1,
-    backgroundColor: Colors.darkGrey,
+    backgroundColor: Colors.white,
+  },
+  bgImage: {
+    width: '100%',
+    height: '80%',
+    zIndex: -1,
+    position: 'absolute',
   },
   arrow: {
     marginTop: scaledSize(20),

@@ -14,7 +14,6 @@ interface ISvgFromUriProps {
   style?: StyleProp<ViewStyle>;
   imageStyle: StyleProp<ViewStyle & ImageStyle>;
   uri?: string | null;
-  error?: React.ReactNode;
   height: string | number;
   width: string | number;
 }
@@ -23,7 +22,6 @@ const ImageFromUri: React.FC<React.PropsWithChildren<ISvgFromUriProps>> = ({
   style,
   uri,
   imageStyle,
-  error,
   width,
   height,
 }) => {
@@ -43,7 +41,7 @@ const ImageFromUri: React.FC<React.PropsWithChildren<ISvgFromUriProps>> = ({
     return null;
   }
 
-  if (!error && isError) {
+  if (isError) {
     return null;
   }
 
@@ -67,7 +65,6 @@ const ImageFromUri: React.FC<React.PropsWithChildren<ISvgFromUriProps>> = ({
           <Rect width={width} height={height} rx="8" />
         </ContentLoader>
       ) : null}
-      {isError ? error : null}
     </View>
   );
 };

@@ -16,9 +16,15 @@ interface IBooksSection {
   title: string;
   titleStyle?: StyleProp<TextStyle>;
   books: Book[];
+  isAvalibleToPress?: boolean;
 }
 
-const BooksSection: React.FC<IBooksSection> = ({title, titleStyle, books}) => {
+const BooksSection: React.FC<IBooksSection> = ({
+  title,
+  titleStyle,
+  books,
+  isAvalibleToPress = true,
+}) => {
   const navigation = useNavigation();
 
   const goToDetails = useCallback(
@@ -41,7 +47,10 @@ const BooksSection: React.FC<IBooksSection> = ({title, titleStyle, books}) => {
         data={books}
         showsHorizontalScrollIndicator={false}
         renderItem={({item}) => (
-          <TouchableOpacity style={styles.card} onPress={goToDetails(item.id)}>
+          <TouchableOpacity
+            activeOpacity={isAvalibleToPress ? 0.5 : 1}
+            style={styles.card}
+            onPress={isAvalibleToPress ? goToDetails(item.id) : undefined}>
             <ImageFromUri
               uri={item.cover_url}
               style={styles.imageBox}
