@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export type IColors = keyof typeof Colors;
 export type IColorsValue = (typeof ColorsValues)[number];
 type IHexOpacities = keyof typeof HexOpacities;
@@ -8,7 +10,9 @@ export const Colors = {
   darkGrey: '#101010',
   brightPink: '#D0006E',
   darkPurple: '#0B080F',
-};
+  gray: '#C4C4C4',
+  whiteGray: '#D9D5D6',
+} as const;
 
 const ColorsValues = Object.values(Colors);
 
@@ -30,6 +34,6 @@ export const withHexOpacity = (
   color: IColors | IColorsValue,
   hexOpacity: IHexOpacities,
 ) =>
-  `${ColorsValues.includes(color) ? color : Colors[color as IColors]}${
+  `${_.includes(ColorsValues, color) ? color : Colors[color as IColors]}${
     HexOpacities[hexOpacity]
   }`;

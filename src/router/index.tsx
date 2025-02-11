@@ -13,7 +13,11 @@ const AppRouter = () => (
       initialRouteName="SplashScreen"
       screenOptions={{headerShown: false}}>
       <Stack.Screen name="SplashScreen" component={SplashScreen} />
-      <Stack.Screen name="MainScreen" component={MainScreen} />
+      <Stack.Screen
+        name="MainScreen"
+        component={MainScreen}
+        options={{gestureEnabled: false}}
+      />
       <Stack.Screen name="DetailsScreen" component={DetailsScreen} />
     </Stack.Navigator>
   </NavigationContainer>
