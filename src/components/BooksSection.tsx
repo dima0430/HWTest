@@ -7,14 +7,15 @@ import {
   TextStyle,
 } from 'react-native';
 import React, {useCallback} from 'react';
+import {useNavigation} from '@react-navigation/native';
 import ImageFromUri from './ImageFromUri';
 import {Colors, Fonts, withHexOpacity, scaledSize} from '../theme';
-import {useNavigation} from '@react-navigation/native';
+import {Book} from '../context';
 
 interface IBooksSection {
   title: string;
-  titleStyle: StyleProp<TextStyle>;
-  books: any[];
+  titleStyle?: StyleProp<TextStyle>;
+  books: Book[];
 }
 
 const BooksSection: React.FC<IBooksSection> = ({title, titleStyle, books}) => {

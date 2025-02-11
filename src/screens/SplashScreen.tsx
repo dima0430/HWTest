@@ -9,13 +9,9 @@ import {
 } from 'react-native';
 import React, {useEffect} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
 import SplashScreenBg from '../assets/illustrations/splash-screen-bg.png';
 import {Colors, Fonts, withHexOpacity} from '../theme';
-import {useNavigation} from '@react-navigation/native';
-
-export type RootStackParamList = {
-  [key: string]: any;
-};
 
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation();

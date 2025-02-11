@@ -6,22 +6,23 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useRef} from 'react';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
-import remoteConfig from '@react-native-firebase/remote-config';
 import _ from 'lodash';
-import {Colors, Fonts, scaledSize} from '../theme';
-import BooksSection from '../components/BooksSection';
 import Carousel, {
   ICarouselInstance,
   Pagination,
 } from 'react-native-reanimated-carousel';
 import {useSharedValue} from 'react-native-reanimated';
-import ImageFromUri from '../components/ImageFromUri';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {Colors, Fonts, scaledSize} from '../theme';
+import BooksSection from '../components/BooksSection';
+import ImageFromUri from '../components/ImageFromUri';
+import {useConfig} from '../context';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const MainScreen: React.FC = () => {
-  const [data, setData] = useState(null);
+  const {books_grouped_by_genre, top_banner_slides} = useConfig();
   const scrollOffsetValue = useSharedValue<number>(0);
   const progress = useSharedValue<number>(0);
   const ref = useRef<ICarouselInstance>(null);
@@ -44,16 +45,6 @@ const MainScreen: React.FC = () => {
     });
   };
 
-  useEffect(() => {
-    const fetch = async () => {
-      await remoteConfig().fetchAndActivate();
-      const fetchedData = remoteConfig().getValue('json_data').asString();
-      setData(JSON.parse(fetchedData));
-    };
-
-    fetch();
-  }, []);
-
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
@@ -71,58 +62,60 @@ const MainScreen: React.FC = () => {
   );
 
   return (
-    <SafeAreaView edges={['left', 'right']} style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        }}>
-        <Text style={styles.header}>{'Library'}</Text>
-        <View>
-          <Carousel
-            ref={ref}
-            loop
-            vertical={false}
-            width={scaledSize(343)}
-            height={scaledSize(160)}
-            snapEnabled
-            pagingEnabled
-            autoPlay
-            autoPlayInterval={3000}
-            scrollAnimationDuration={1500}
-            onProgressChange={progress}
-            data={data?.top_banner_slides}
-            defaultScrollOffsetValue={scrollOffsetValue}
-            style={styles.carousel}
-            renderItem={({item}) => (
-              <TouchableOpacity onPress={goToDetails(item.id)}>
-                <ImageFromUri
-                  uri={item.cover}
-                  imageStyle={styles.image}
-                  height={styles.image.height}
-                  width={styles.image.width}
-                  style={styles.imageBox}
-                />
-              </TouchableOpacity>
-            )}
-          />
-          {data?.top_banner_slides ? (
-            <Pagination.Basic
-              progress={progress}
-              data={data?.top_banner_slides}
-              dotStyle={styles.dot}
-              activeDotStyle={styles.activeDot}
-              containerStyle={styles.dotsContainer}
-              horizontal
-              onPress={onPressPagination}
+    <GestureHandlerRootView>
+      <SafeAreaView edges={['left', 'right']} style={styles.container}>
+        <ScrollView
+          contentContainerStyle={{
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          }}>
+          <Text style={styles.header}>{'Library'}</Text>
+          <View>
+            <Carousel
+              ref={ref}
+              loop
+              vertical={false}
+              width={scaledSize(343)}
+              height={scaledSize(160)}
+              snapEnabled
+              pagingEnabled
+              autoPlay
+              autoPlayInterval={3000}
+              scrollAnimationDuration={1500}
+              onProgressChange={progress}
+              data={top_banner_slides}
+              defaultScrollOffsetValue={scrollOffsetValue}
+              style={styles.carousel}
+              renderItem={({item}) => (
+                <TouchableOpacity onPress={goToDetails(item.id)}>
+                  <ImageFromUri
+                    uri={item.cover}
+                    imageStyle={styles.image}
+                    height={styles.image.height}
+                    width={styles.image.width}
+                    style={styles.imageBox}
+                  />
+                </TouchableOpacity>
+              )}
             />
-          ) : null}
-        </View>
-        {_.map(_.groupBy(data?.books, 'genre'), (books, key) => (
-          <BooksSection key={key} title={key} books={books} />
-        ))}
-      </ScrollView>
-    </SafeAreaView>
+            {top_banner_slides ? (
+              <Pagination.Basic
+                progress={progress}
+                data={top_banner_slides}
+                dotStyle={styles.dot}
+                activeDotStyle={styles.activeDot}
+                containerStyle={styles.dotsContainer}
+                horizontal
+                onPress={onPressPagination}
+              />
+            ) : null}
+          </View>
+          {_.map(books_grouped_by_genre, (books, key) => (
+            <BooksSection key={key} title={key} books={books} />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 };
 

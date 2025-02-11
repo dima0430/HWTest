@@ -1,176 +1,130 @@
 import {
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
-import {Colors, Fonts, scaledSize, withHexOpacity} from '../theme';
-import ArrowIcon from '../assets/illustrations/arrow.svg';
-import {useNavigation} from '@react-navigation/native';
-import Carousel from 'react-native-reanimated-carousel';
-import remoteConfig from '@react-native-firebase/remote-config';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import Carousel, {ICarouselInstance} from 'react-native-reanimated-carousel';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import _ from 'lodash';
 import ImageFromUri from '../components/ImageFromUri';
-import {Extrapolation, interpolate} from 'react-native-reanimated';
 import BooksSection from '../components/BooksSection';
+import {useConfig} from '../context';
+import {Colors, Fonts, scaledSize, screenWidth, withHexOpacity} from '../theme';
+import ArrowIcon from '../assets/illustrations/arrow.svg';
+import {parallaxLayout} from '../utils';
 
-function parallaxLayout(
-  baseConfig: {
-    size: number;
-  },
-  modeConfig: {
-    parallaxScrollingOffset: number;
-    parallaxMainOffset: number;
-    parallaxScrollingScale: number;
-    parallaxAdjacentItemScale: number;
-  },
-) {
-  const {size} = baseConfig;
-  const {
-    parallaxScrollingOffset,
-    parallaxMainOffset,
-    parallaxScrollingScale,
-    parallaxAdjacentItemScale,
-  } = modeConfig;
-
-  return (value: number) => {
-    'worklet';
-    const translate = interpolate(
-      value,
-      [-1, 0, 1],
-      [
-        -size + parallaxScrollingOffset,
-        parallaxMainOffset,
-        size + parallaxScrollingOffset,
-      ],
-    );
-
-    const scale = interpolate(
-      value,
-      [-1, 0, 1],
-      [
-        parallaxAdjacentItemScale,
-        parallaxScrollingScale,
-        parallaxAdjacentItemScale,
-      ],
-      Extrapolation.CLAMP,
-    );
-
-    return {
-      transform: [
-        {
-          translateX: translate,
-        },
-        {
-          scale,
-        },
-      ],
+type DetailsScreenRouteProp = RouteProp<
+  {
+    DetailsScreen: {
+      id: number;
     };
-  };
-}
+  },
+  'DetailsScreen'
+>;
 
 const DetailsScreen: React.FC = () => {
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const [data, setData] = useState(null);
+  const ref = useRef<ICarouselInstance>(null);
+  const {parsed_you_will_like_section, books} = useConfig();
+  const {
+    params: {id},
+  } = useRoute<DetailsScreenRouteProp>();
+  const [selectedBookIndex, setSelectedBookIndex] = useState(
+    _.findIndex(books, {id}),
+  );
+  const selectedBook = _.get(books, selectedBookIndex);
 
   useEffect(() => {
-    const fetch = async () => {
-      await remoteConfig().fetchAndActivate();
-      const fetchedData = remoteConfig().getValue('json_data').asString();
-      setData(JSON.parse(fetchedData));
-    };
-
-    fetch();
-  }, []);
-
-  console.log(data);
+    ref.current?.scrollTo({
+      count: _.findIndex(books, {id}),
+    });
+  }, [books, id]);
 
   return (
-    <SafeAreaView edges={['left', 'right']} style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.scroll}
-        contentContainerStyle={{
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-        }}>
-        <TouchableOpacity onPress={navigation.goBack}>
-          <ArrowIcon style={styles.arrow} />
-        </TouchableOpacity>
-        <Carousel
-          loop={false}
-          snapEnabled
-          style={{
-            width: Dimensions.get('screen').width,
-            height: scaledSize(250),
-          }}
-          width={Dimensions.get('screen').width}
-          data={data?.books}
-          renderItem={({item}) => (
-            <ImageFromUri
-              uri={item.cover_url}
-              imageStyle={styles.image}
-              height={styles.image.height}
-              width={styles.image.width}
-              style={styles.imageBox}
-            />
-          )}
-          customAnimation={parallaxLayout(
-            {
-              size: Dimensions.get('screen').width / 1.9,
-            },
-            {
-              parallaxScrollingScale: 1,
-              parallaxAdjacentItemScale: 0.8,
-              parallaxScrollingOffset: scaledSize(60),
-              parallaxMainOffset: scaledSize(80),
-            },
-          )}
-        />
-        <Text style={styles.bookName}>Book name</Text>
-        <Text style={styles.bookAuthor}>Book author</Text>
-        <View style={[styles.whiteBlock, {marginBottom: -insets.bottom}]}>
-          <View style={styles.infoContainer}>
-            <View>
-              <Text style={styles.infoItemTitle}>{'22'}</Text>
-              <Text style={styles.infoItemSubTitle}>{'Readers'}</Text>
-            </View>
-            <View>
-              <Text style={styles.infoItemTitle}>{'22'}</Text>
-              <Text style={styles.infoItemSubTitle}>{'Likes'}</Text>
-            </View>
-            <View>
-              <Text style={styles.infoItemTitle}>{'22'}</Text>
-              <Text style={styles.infoItemSubTitle}>{'Quotes'}</Text>
-            </View>
-            <View>
-              <Text style={styles.infoItemTitle}>{'22'}</Text>
-              <Text style={styles.infoItemSubTitle}>{'Genre'}</Text>
-            </View>
-          </View>
-          <View style={styles.summary}>
-            <Text style={styles.summaryLabel}>{'Summary'}</Text>
-            <Text style={styles.summaryText}>
-              {
-                'According to researchers at Duke University, habits account for about 40 percent of our behaviors on any given day. Your life today is essentially the sum of your habits. How in shape or out of shape you are? A result of your habits. How happy or unhappy you are? A result of your habits. How successful or unsuccessful you are? A result of your habits.'
-              }
-            </Text>
-          </View>
-          <BooksSection
-            title="You will also like"
-            books={data?.books}
-            titleStyle={styles.likedTitle}
-          />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Read Now</Text>
+    <GestureHandlerRootView>
+      <SafeAreaView edges={['left', 'right']} style={styles.container}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.scroll}
+          contentContainerStyle={{
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+          }}>
+          <TouchableOpacity onPress={navigation.goBack}>
+            <ArrowIcon style={styles.arrow} />
           </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          <Carousel
+            ref={ref}
+            onSnapToItem={setSelectedBookIndex}
+            loop={false}
+            snapEnabled
+            style={styles.carosel}
+            width={screenWidth}
+            data={books}
+            renderItem={({item}) => (
+              <ImageFromUri
+                uri={item.cover_url}
+                imageStyle={styles.image}
+                height={styles.image.height}
+                width={styles.image.width}
+                style={styles.imageBox}
+              />
+            )}
+            customAnimation={parallaxLayout(
+              {
+                size: screenWidth / 1.9,
+              },
+              {
+                parallaxScrollingScale: 1,
+                parallaxAdjacentItemScale: 0.8,
+                parallaxScrollingOffset: scaledSize(60),
+                parallaxMainOffset: scaledSize(80),
+              },
+            )}
+          />
+          <Text style={styles.bookName}>{selectedBook.name}</Text>
+          <Text style={styles.bookAuthor}>{selectedBook.author}</Text>
+          <View style={[styles.whiteBlock, {marginBottom: -insets.bottom}]}>
+            <View style={styles.infoContainer}>
+              <View>
+                <Text style={styles.infoItemTitle}>{selectedBook.views}</Text>
+                <Text style={styles.infoItemSubTitle}>{'Readers'}</Text>
+              </View>
+              <View>
+                <Text style={styles.infoItemTitle}>{selectedBook.likes}</Text>
+                <Text style={styles.infoItemSubTitle}>{'Likes'}</Text>
+              </View>
+              <View>
+                <Text style={styles.infoItemTitle}>{selectedBook.quotes}</Text>
+                <Text style={styles.infoItemSubTitle}>{'Quotes'}</Text>
+              </View>
+              <View>
+                <Text style={styles.infoItemTitle}>{selectedBook.genre}</Text>
+                <Text style={styles.infoItemSubTitle}>{'Genre'}</Text>
+              </View>
+            </View>
+            <View style={styles.summary}>
+              <Text style={styles.summaryLabel}>{'Summary'}</Text>
+              <Text style={styles.summaryText}>{selectedBook.summary}</Text>
+            </View>
+            <BooksSection
+              title="You will also like"
+              books={parsed_you_will_like_section}
+              titleStyle={styles.likedTitle}
+            />
+            <TouchableOpacity style={styles.button}>
+              <Text style={styles.buttonText}>Read Now</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 };
 
@@ -188,6 +142,10 @@ const styles = StyleSheet.create({
     height: scaledSize(24),
     marginLeft: scaledSize(16),
     marginBottom: scaledSize(10),
+  },
+  carosel: {
+    width: screenWidth,
+    height: scaledSize(250),
   },
   image: {
     width: '100%',
@@ -283,6 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
     marginBottom: scaledSize(50),
+    marginTop: scaledSize(20),
   },
   buttonText: {
     fontFamily: Fonts.nunitoSansExtraBold,

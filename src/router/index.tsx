@@ -1,17 +1,16 @@
 import * as React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, StaticParamList} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SplashScreen from '../screens/SplashScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import MainScreen from '../screens/MainScreen';
 
 const Stack = createNativeStackNavigator();
+export type RootStackParamList = StaticParamList<typeof Stack>;
 
 const AppRouter = () => (
   <NavigationContainer>
-    <Stack.Navigator
-      initialRouteName="SplashScreen"
-      screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="SplashScreen" component={SplashScreen} />
       <Stack.Screen
         name="MainScreen"
